@@ -1,0 +1,14 @@
+@import '~bootstrap/dist/css/bootstrap.css';
+
+html, body, #root {
+    height: 100%;
+    background-color: #f8f9fa4d;
+}
+
+a:focus,
+button:focus,
+input:focus,
+textarea:focus {
+    -webkit-box-shadow: none!important;
+    box-shadow: none!important;
+}
