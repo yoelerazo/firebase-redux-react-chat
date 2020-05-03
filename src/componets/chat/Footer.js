@@ -11,7 +11,6 @@ class Footer extends React.Component {
             message: '',
             fileName: '',
             fileData: '',
-            idUploadedFile: null,
         };
     
         this.handleChangeMessageInput = this.handleChangeMessageInput.bind(this);
@@ -27,35 +26,29 @@ class Footer extends React.Component {
         });
     }
 
-    async uploadFile() {
-        await window.db.collection("files")
+    uploadFile() {
+        window.db.collection("files")
         .add({
             name: this.state.fileName,
             data: this.state.fileData
         })
-        .then(function(docRef) {
+        .then((docRef) => {
             console.log("Document written with ID FILE: ", docRef);
-            this.setState({idUploadedFile: docRef.id});
+            this.addMessage(docRef.id);
         })
         .catch(function(error) {
             console.error("Error adding document: ", error);
         });
     }
 
-    sendMessage(e) {
-        e.preventDefault();
-
-        if(this.state.fileData) {
-            this.uploadFile();
-        }
-    
+    addMessage(fileId) {
         const new_message = {
             type: 1,
             status: 1,
             from: this.props.currentUser.id,
             content: this.state.message,
             createdAt: new Date().getTime(),
-            fileId: this.state.idUploadedFile
+            fileId: fileId
         };
     
         window.db.collection("chats").doc(this.props.currentChatId).collection("messages").add(new_message)
@@ -67,7 +60,16 @@ class Footer extends React.Component {
         });
     
         this.resetMessageForm();
+    }
 
+    sendMessage(e) {
+        e.preventDefault();
+
+        if(this.state.fileData) {
+            this.uploadFile();
+        } else {
+            this.addMessage(null);
+        }
     }
 
     processFile = (file) => {
@@ -101,8 +103,8 @@ class Footer extends React.Component {
     loaded = (e) => {
         this.changeStatus('Load ended!');
         const fr = e.target
-        var result = fr.result.split('base64,')[1];
-        this.setState({fileData: result});
+        console.log(fr.result)
+        this.setState({fileData: fr.result});
         // Here we can send the result to a server for example
     }
     
@@ -122,7 +124,7 @@ class Footer extends React.Component {
     }
 
     resetMessageForm = () => {
-        this.setState({fileName: '', fileData:'', message: '', idUploadedFile: null});
+        this.setState({fileName: '', fileData:'', message: ''});
         this.messageFileInput.current.value = null;
     }
 

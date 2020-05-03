@@ -2,13 +2,67 @@ import React from 'react';
 import { connect } from 'react-redux';
 
 class File extends React.Component {
+    constructor(props) {
+        super(props);
+        this.state = {
+            fileData: '#',
+            fileDataBase64: '',
+            fileName: '',
+            loadingFile: true
+        };
+    }
+
+    convertBase64ToFile = (file) => {
+        const byteString = atob(file.split(',')[1]);
+        let mimeString = file.split(',')[0].split(':')[1].split(';')[0];
+
+        const ab = new ArrayBuffer(byteString.length);
+        const ia = new Uint8Array(ab);
+
+        for (let i = 0; i < byteString.length; i += 1) {
+          ia[i] = byteString.charCodeAt(i);
+        }
+        const newBlob = new Blob([ab], {type: mimeString});
+
+        return newBlob;
+      };
+
+    getFile = () => {
+        const fileId = this.props.fileId;
+        this.setState({loadingFile: true});
+
+        window.db.collection("files").doc(fileId)
+        .get().then((doc) => {
+            let blob = this.convertBase64ToFile(doc.data().data);
+
+            this.setState({
+                fileData: URL.createObjectURL(blob),
+                fileDataBase64: doc.data().data.split(';')[1],
+                fileName: doc.data().name,
+                loadingFile: false
+            })
+        }).catch(function(error) {
+            console.log("Error getting document:", error);
+        });
+    }
 
     componentDidMount() {
-        // Query File
+        this.getFile();
     }
     
     render() {
-        <div></div>
+        return (
+            <div>
+                {this.state.loadingFile 
+                ? <span>Loading...</span>
+                : <div>
+                    <a download={this.state.fileName} href={this.state.fileData}>{this.state.fileName}</a>
+                </div>
+                
+                
+                }
+            </div>
+        );
     }
 }
 

@@ -30,7 +30,7 @@ class ChatList extends React.Component {
                     {chatsFiltered.map( (chat) => 
                         <li id={chat.get('id')} onClick={this.selectChat} key={chat.get('id')} className="list-group-item" >
                             <div className="avatar--48 overflow-hidden rounded-circle mr-2 d-inline-block align-middle">
-                                <img src={userImage} className="responsive-img"></img>
+                                <img src={userImage} className="responsive-img" />
                             </div>
                             {chat.get('partner')}
                             {currentChatId !== chat.get('id') && chat.get('pending') !== 0 

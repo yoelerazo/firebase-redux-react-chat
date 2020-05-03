@@ -1,6 +1,7 @@
 import React from 'react';
 import  { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faCheck } from '@fortawesome/free-solid-svg-icons';
+import File from './File';
 
 class Message extends React.Component {
     render() {
@@ -24,9 +25,10 @@ class Message extends React.Component {
             };
         }
         return (
-            <div className={`my-3 d-flex ${userMatch ? "justify-content-end" : "justify-content-start"}`}>
+            <div className={`my-3 d-flex ${userMatch ? "justify-content-end" : "justify-content-start"}`}>  
                 <div style={styles} className="card w-75 border">
                     <div className="card-body">
+                        {message.get('fileId') ? <File fileId={message.get('fileId')} /> : ""}
                         <p className="card-text">{message.get('content')}</p>
                         <p className={`card-text ${userMatch ? "text-right" : "text-left"}`}>
                             <small className="text-muted">{date}</small>

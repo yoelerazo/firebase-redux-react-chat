@@ -49,7 +49,6 @@ export const getMessagesByChat = () => {
 
         if(chat.get('messages').size){
             chat.get('messages').forEach( message => {
-                console.log("preUpdate"+message.get('status') === 1 && getState().session.get('currentUser').id !== message.get('from'))
                 if(message.get('status') === 1 && getState().session.get('currentUser').id !== message.get('from')){
                     dispatch(updateStatusMessage(message));
                 }
