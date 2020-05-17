@@ -18,7 +18,8 @@ export const getChatsByCurrentUser = () => {
                         partnerId: partnerId,
                         messages: [],
                         pending: 0,
-                        lastMessage: null
+                        lastMessage: null,
+                        previousLastMessage: null
                     });
                 }
                 if (change.type === "modified") {
@@ -71,6 +72,7 @@ export const getMessagesByChat = () => {
                    
                     if (change.type === "added") {
                         changeType = "added";
+                        console.log("Added:", change.doc.data())
                         messages.push({id: change.doc.id, ...change.doc.data()}); 
                     }
                     if (change.type === "modified") {
@@ -112,27 +114,44 @@ export const getMessagesPaginateByChat = () => {
         const chat = chats.find(chat => chat.get('id') === currentChatId );
         const lastMessage = chat.get('lastMessage');
 
-        dispatch(loadingMessages(true));
+        let nextQuery = true;
+        let lastMSG = getState().chats.getIn(['list', chatIndex, 'lastMessage']);
+        let previousMSG = getState().chats.getIn(['list', chatIndex, 'previousLastMessage']);
 
-        window.db.collection("chats").doc(currentChatId).collection("messages")
-        .orderBy("createdAt", "desc").limit(8).startAfter(lastMessage)
-        .get().then(function(querySnapshot) {
-            
-            if(!querySnapshot.empty){
-                let messages = [];
-                let lastMessage = querySnapshot.docs[querySnapshot.docs.length-1];
-
-                dispatch({ type: 'SET_LAST_MESSAGE_BY_CHAT', chatIndex: chatIndex, lastMessage: lastMessage})
-
-                querySnapshot.forEach(function(doc) {
-                    messages.push( {id: doc.id, ...doc.data()});
-                });
-                
-                dispatch({ type: 'UPDATE_MESSAGES_PAGINATE_BY_CHAT', chatIndex: chatIndex, messages: messages.reverse()})
+        
+        if(previousMSG !== null) {
+            if(previousMSG.id === lastMSG.id) {
+                nextQuery = false;
             }
-        }).catch(function(error) {
-            console.log("Error getting document:", error);
-        }).then(() => dispatch(loadingMessages(false)));
+        }
+
+        if(nextQuery) {
+            dispatch(loadingMessages(true));
+            
+            window.db.collection("chats").doc(currentChatId).collection("messages")
+            .orderBy("createdAt", "desc").limit(8).startAfter(lastMessage)
+            .get().then(function(querySnapshot) {
+
+                let previousLastMessage = getState().chats.getIn(['list', chatIndex, 'lastMessage'])
+                
+                dispatch({ type: 'SET_PREVIOUS_LAST_MESSAGE_BY_CHAT', chatIndex: chatIndex, previousLastMessage: previousLastMessage})
+
+                if(!querySnapshot.empty){
+                    let messages = [];
+                    let lastMessage = querySnapshot.docs[querySnapshot.docs.length-1];
+
+                    dispatch({ type: 'SET_LAST_MESSAGE_BY_CHAT', chatIndex: chatIndex, lastMessage: lastMessage})
+
+                    querySnapshot.forEach(function(doc) {
+                        messages.push( {id: doc.id, ...doc.data()});
+                    });
+                    
+                    dispatch({ type: 'UPDATE_MESSAGES_PAGINATE_BY_CHAT', chatIndex: chatIndex, messages: messages.reverse()})
+                }
+            }).catch(function(error) {
+                console.log("Error getting document:", error);
+            }).then(() => dispatch(loadingMessages(false)));
+        }
     }
 }
 

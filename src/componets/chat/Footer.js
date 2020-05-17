@@ -9,15 +9,19 @@ class Footer extends React.Component {
 
     this.state = {
       message: "",
-      fileName: "",
-      fileData: "",
+      files: []
     };
 
     this.handleChangeMessageInput = this.handleChangeMessageInput.bind(this);
     this.sendMessage = this.sendMessage.bind(this);
-    this.uploadFile = this.uploadFile.bind(this);
+    this.uploadFiles = this.uploadFiles.bind(this);
 
     this.messageFileInput = React.createRef();
+  }
+
+  async getTimezoneTimestamp() {
+    const timezone = await fetch("http://worldtimeapi.org/api/timezone/Europe/Berlin").then((response) => response.json())
+    return new Date(timezone.datetime).getTime();
   }
 
   handleChangeMessageInput(e) {
@@ -26,31 +30,31 @@ class Footer extends React.Component {
     });
   }
 
-  uploadFile() {
-    return window.db
-      .collection("files")
-      .add({
-        name: this.state.fileName,
-        data: this.state.fileData,
-      })
-      .then((docRef) => {
-        console.log("Document written with ID FILE: ", docRef);
-        return docRef.id;
-      })
-      .catch(function (error) {
-        console.error("Error adding document: ", error);
-        return null;
-      });
+  uploadFiles() {
+    return Promise.all(this.state.files.map( (file) => 
+        window.db
+        .collection("files")
+        .add(file)
+        .then((docRef) => {
+          console.log("Document written with ID FILE: ", docRef);
+          return docRef.id;
+        })
+        .catch(function (error) {
+          console.error("Error adding document: ", error);
+          return null;
+        })
+      )
+    )
   }
 
-  addMessage(fileId = null) {
+  async addMessage(filesId) {
     const new_message = {
       type: 1,
       status: 1,
       from: this.props.currentUser.id,
       content: this.state.message,
-      createdAt: new Date().getTime(),
-      fileId: fileId,
+      createdAt: await this.getTimezoneTimestamp(),
+      filesId: filesId.length === 0 ? null : filesId,
     };
 
     window.db
@@ -70,27 +74,29 @@ class Footer extends React.Component {
 
   async sendMessage(e) {
     e.preventDefault();
-
-    let fileId = null;
-    if (this.state.fileData) {
-      fileId = await this.uploadFile();
-    }
-    this.addMessage(fileId);
+    let l = await this.uploadFiles().then(data => {
+      return data;
+    });
+    this.addMessage(l);
   }
 
-  processFile = (file) => {
-    // we define fr as a new instance of FileReader
-    const fr = new FileReader();
+  processFile = (files) => {
 
-    fr.readAsDataURL(file);
-    // Handle progress, success, and errors
-    // fr.onprogress = updateProgress;
-    fr.onerror = this.errorHandler;
-    fr.onabort = () => this.changeStatus("Start Loading");
-    fr.onloadstart = () => this.changeStatus("Start Loading");
-    fr.onload = this.loaded;
-    // Here you can perform some operations on the data asynchronously
-    fr.onprogress = this.setProgress;
+    for (var i = 0, file; file = files[i]; i++){
+      // we define fr as a new instance of FileReader
+      const fr = new FileReader();
+
+      fr.fileName = file.name;
+      fr.readAsDataURL(file);
+      // Handle progress, success, and errors
+      // fr.onprogress = updateProgress;
+      fr.onerror = this.errorHandler;
+      fr.onabort = () => this.changeStatus("Start Loading");
+      fr.onloadstart = () => this.changeStatus("Start Loading");
+      fr.onload = this.loaded;
+      // Here you can perform some operations on the data asynchronously
+      fr.onprogress = this.setProgress;
+    };
   };
 
   setProgress = (e) => {
@@ -109,9 +115,9 @@ class Footer extends React.Component {
   loaded = (e) => {
     this.changeStatus("Load ended!");
     const fr = e.target;
-    console.log(fr.result);
-    this.setState({ fileData: fr.result });
-    // Here we can send the result to a server for example
+    this.setState((state, props) => ({
+      files: state.files.concat({name: fr.fileName, data: fr.result})
+    }));
   };
 
   errorHandler = (e) => {
@@ -119,18 +125,23 @@ class Footer extends React.Component {
   };
 
   handleChangeMessageFileInput = () => {
-    let file = this.messageFileInput.current.files[0];
-    this.setState({ fileName: file.name });
-    this.processFile(file);
+    let files = this.messageFileInput.current.files;
+    console.log(files)
+    this.processFile(files);
   };
 
-  resetMessageFileInput = () => {
-    this.setState({ fileName: "", fileData: "" });
-    this.messageFileInput.current.value = null;
+  deleteLocalFileInput = (e) => {
+    const target = e.target;
+    console.log(target)
+    let files = this.messageFileInput.current.files;
+
+    this.setState((state, props) => ({
+      files: state.files.filter(file => file.name !== target.id)
+    }));
   };
 
   resetMessageForm = () => {
-    this.setState({ fileName: "", fileData: "", message: "" });
+    this.setState({ message: "", files: [] });
     this.messageFileInput.current.value = null;
   };
 
@@ -146,25 +157,30 @@ class Footer extends React.Component {
         className="border-top p-3 position-absolute"
         style={{ bottom: 0, width: "100%", padding: "1rem" }}
       >
-        {this.state.fileName ? (
-          <div
-            className="alert alert-info alert-dismissible fade show"
-            role="alert"
-          >
-            {this.state.fileName}
-            <button
-              type="button"
-              onClick={this.resetMessageFileInput}
-              className="close"
-              data-dismiss="alert"
-              aria-label="Close"
-            >
-              <span aria-hidden="true">&times;</span>
-            </button>
+        {this.state.files.length !== 0 ? 
+          <div>
+            {this.state.files.map( (file) => 
+              <div 
+                key={file.name}
+                className="alert alert-info alert-dismissible fade show"
+                role="alert"
+              >
+                {file.name}
+                <button
+                  id={file.name}
+                  type="button"
+                  onClick={this.deleteLocalFileInput}
+                  className="close"
+                  data-dismiss="alert"
+                  aria-label="Close"
+                >
+                  <span aria-hidden="true">&times;</span>
+                </button>
+              </div>
+            )} 
           </div>
-        ) : (
-          ""
-        )}
+         :  ""
+        }
         <form onSubmit={this.sendMessage}>
           <div className="input-group">
             <textarea
@@ -184,6 +200,7 @@ class Footer extends React.Component {
                   type="file"
                   id="addFile"
                   className="d-none"
+                  multiple
                 />
                 <FontAwesomeIcon
                   icon={faPaperclip}

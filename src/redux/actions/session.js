@@ -1,6 +1,6 @@
 export const isAuthenticated = () => {
     return (dispatch, getState) => {
-        window.firebase.auth().onAuthStateChanged((user) => {
+        return window.firebase.auth().onAuthStateChanged((user) => {
             if(user) {
                 console.log("Logged-in!");
                 const currentUser = {
@@ -17,4 +17,8 @@ export const isAuthenticated = () => {
             }
         });
     }
+}
+
+export const logoutUser = () =>{
+    return { type: 'RESET_APP' }
 }

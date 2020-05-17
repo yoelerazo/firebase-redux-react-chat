@@ -1,4 +1,6 @@
 import React from 'react';
+import { withRouter} from 'react-router-dom';
+import { logoutUser } from '../../redux/actions/session';
 //import { Link } from 'react-router-dom';
 import  { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faBars } from '@fortawesome/free-solid-svg-icons';
@@ -13,6 +15,7 @@ class Header extends React.Component {
     logOutUser() {
         window.firebase.auth().signOut().then(() => {
             console.log("User logout!");
+            this.props.logoutUser();
             this.props.history.push('/');
         });
     }
@@ -36,5 +39,9 @@ class Header extends React.Component {
 const mapStateToProps = (state) => ({
     currentUser: state.session.get('currentUser')
 })
+
+const mapDispatchToProps = dispatch => ({
+    logoutUser: () => dispatch(logoutUser())
+})
   
-export default connect(mapStateToProps, {} )(Header)
+export default connect(mapStateToProps, mapDispatchToProps )(withRouter (Header))

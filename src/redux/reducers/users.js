@@ -1,13 +1,13 @@
 import { fromJS} from 'immutable'; 
 
 const initialState = fromJS({
-    list: []
+    usersByCurrentUser: []
 })
 
 export default (state = initialState, action) => {
     switch (action.type) {
-        case "GET_USERS":
-            return state.updateIn(['list'], list => list.concat(fromJS(action.users)))
+        case "SET_USERS_BY_CURRENT_USER":
+            return state.updateIn(['usersByCurrentUser'], list => list.concat(fromJS(action.users)))
         default:
             return state;
     }

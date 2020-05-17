@@ -1,6 +1,6 @@
 import React from 'react';
 import { connect } from 'react-redux';
-import { getUsers } from '../../redux/actions/users';
+import { getUsersByCurrentUser } from '../../redux/actions/users';
 import userImage from "../../user_image.jpg";
 
 class UserList extends React.Component {
@@ -37,7 +37,7 @@ class UserList extends React.Component {
     }
 
     componentDidMount() {
-        this.props.getUsers();
+        this.props.getUsersByCurrentUser();
     }
 
     render() {
@@ -64,7 +64,7 @@ class UserList extends React.Component {
 }
 
 const preFilterUsers = (state) => {
-    return state.users.getIn(['list']).filter(user => !state.chats.getIn(['list']).find(chat => chat.get('partnerId') === user.get('id') ))
+    return state.users.getIn(['usersByCurrentUser']).filter(user => !state.chats.getIn(['list']).find(chat => chat.get('partnerId') === user.get('id') ))
 }
 
 const mapStateToProps = (state) => ({
@@ -73,7 +73,7 @@ const mapStateToProps = (state) => ({
 })
 
 const mapDispatchToProps = dispatch => ({
-    getUsers: () => dispatch(getUsers())
+    getUsersByCurrentUser: () => dispatch(getUsersByCurrentUser())
 })
   
 export default connect(mapStateToProps, mapDispatchToProps )(UserList)

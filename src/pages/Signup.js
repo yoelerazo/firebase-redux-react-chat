@@ -1,7 +1,5 @@
 import React from 'react';
-//import { Link } from 'react-router-dom';
-//import  { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-//import { faArrowCircleLeft } from '@fortawesome/free-solid-svg-icons';
+import { withRouter} from 'react-router-dom';
 
 class Signup extends React.Component {
     constructor(props) {
@@ -65,36 +63,23 @@ class Signup extends React.Component {
     }
 
     render() {
-        return (
-            <div className="container h-100 d-flex flex-column justify-content-center">
-                <div className="row justify-content-center">
-                    <div className="col-6">
-                        <div className="card">
-                            <div className="card-header">
-                                Sign
-                            </div>
-                            <div className="card-body p-2">
-                                <form className="py-3" onSubmit={this.createNewUser}>
-                                    <div className="form-group">
-                                        <input type="text" name="userName" onChange={this.handleChange} value={this.state.userName}  className="form-control" placeholder="Full name" />
-                                    </div>
-                                    <div className="form-group">
-                                    <input type="email" name="email" onChange={this.handleChange} value={this.state.email}  className="form-control" placeholder="xyz@email.com" />
-                                    </div>
-                                    <div className="form-group">
-                                    <input type="password" name ="password" onChange={this.handleChange} value={this.state.password}  className="form-control" placeholder="******" />
-                                    </div>
-                                    <button className="btn btn-primary">
-                                        Signup
-                                    </button>
-                                </form>
-                            </div>
-                        </div>
-                    </div>   
-                </div>            
-            </div>
+        return ( 
+            <form className="py-3" onSubmit={this.createNewUser}>
+                <div className="form-group">
+                    <input type="text" name="userName" onChange={this.handleChange} value={this.state.userName}  className="form-control" placeholder="Full name" />
+                </div>
+                <div className="form-group">
+                <input type="email" name="email" onChange={this.handleChange} value={this.state.email}  className="form-control" placeholder="xyz@email.com" />
+                </div>
+                <div className="form-group">
+                <input type="password" name ="password" onChange={this.handleChange} value={this.state.password}  className="form-control" placeholder="******" />
+                </div>
+                <button className="btn btn-primary">
+                    Signup
+                </button>
+            </form>
         );
     }
 }
 
-export default Signup;
+export default withRouter(Signup);

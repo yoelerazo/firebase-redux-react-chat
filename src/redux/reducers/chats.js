@@ -18,6 +18,8 @@ export default (state = initialState, action) => {
             return state.updateIn(['list', action.chatIndex, 'messages'], list => fromJS(action.messages).concat(list))
         case "SET_LAST_MESSAGE_BY_CHAT":
             return state.setIn(['list', action.chatIndex, 'lastMessage'], action.lastMessage)
+        case "SET_PREVIOUS_LAST_MESSAGE_BY_CHAT":
+            return state.setIn(['list', action.chatIndex, 'previousLastMessage'], action.previousLastMessage)
         case "LOADING_MESSAGES":
             return state.setIn(['loadingMessages'], action.loading)
         case "PENDING_MESSAGES_BY_CHAT":

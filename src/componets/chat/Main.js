@@ -54,18 +54,18 @@ class Main extends React.Component {
         const {messages, currentUser, loadingMessages} = this.props;
 
         return (
-            <div ref={this.scrollElement} className="card-body overflow-auto scroll" style={{backgroundColor: "#f5f5f5", marginBottom: "95px"}}>
-                {loadingMessages 
-                ? <div className="d-flex justify-content-center">
+            <>
+                {loadingMessages
+                ? <div className="d-flex justify-content-center align-items-center position-absolute w-100 h-100" style={{zIndex: "999"}}>
                     <div className="spinner-border text-info" role="status">
                         <span className="sr-only">Loading...</span>
                     </div>
                 </div> 
                 : ""}
-        
-                <MessageList currentUser={currentUser} messages={messages} />
-                
-            </div>
+                <div ref={this.scrollElement} className="card-body overflow-auto scroll" style={{backgroundColor: "#f5f5f5", marginBottom: "95px"}}>
+                    <MessageList currentUser={currentUser} messages={messages} />
+                </div>
+            </>
         );
         
     }

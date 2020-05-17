@@ -1,35 +1,52 @@
 import React from 'react';
+import moment from 'moment';
 import Message from './Message';
-import {isToday, isYesterday, getTimeFromTimestamp, getTimeAndDateFromTimestamp, getDateFromTimestamp, diffBetweenDates} from '../../helpers/Dates';
 
 class MessageList extends React.Component {
-    setDate(date) {
-        if(isToday(date)) {
+    getDateFormat(targetdate) {
+        let now = moment(moment().format('MM.DD.YY'));
+        let date = moment(moment(targetdate).format('MM.DD.YY'));
+        let diffDays = now.diff(date, 'days');
+        
+        if(diffDays === 0) {
             return "Today";
-        } else if(isYesterday(date)) {
+        } else if(diffDays === 1) {
             return "Yesterday";
         } else {
-            return getDateFromTimestamp(date);
+            return moment(date).format('MM.DD.YY');
         }
     }
 
     render() {
         const {messages, currentUser} = this.props;
 
-        let date = null;
-        let newList = [];
+        const newList = {}
+
         messages.forEach( message => {
-            if(diffBetweenDates(date, message.get('createdAt')) !== 0){
-                newList.push(<div key={message.get('createdAt')}  className="border-top pt-2 text-center"><span className="text-success">{this.setDate(message.get('createdAt'))}</span></div>);
-                newList.push(<Message key={message.get('id')} currentUser={currentUser} message={message} date={getTimeAndDateFromTimestamp(message.get('createdAt'))} />);  
-            } else {    
-                newList.push(<Message key={message.get('id')} currentUser={currentUser} message={message} date={getTimeAndDateFromTimestamp(message.get('createdAt'))} />);
+            let dateTimestamp = moment(moment(message.get('createdAt').seconds).format('MM.DD.YY')).valueOf();
+
+            if(!newList[dateTimestamp]) {
+                newList[dateTimestamp] = {label: this.getDateFormat(dateTimestamp), messages: [message]};  
+            }else {
+                newList[dateTimestamp].messages.push(message);
             }
+        });
 
-            date = message.get('createdAt');
-        })
-
-        return newList;
+        return (
+            Object.entries(newList).map( ([key, value]) => 
+                <div key={key}>
+                    <div className="border-top pt-2 text-center"><span className="text-success">{value.label}</span></div>
+                    {value.messages.map( (message) => 
+                       <Message key={message.get('id')}
+                            currentUser={currentUser} message={message} 
+                            date={(this.getDateFormat(message.get('createdAt')) === "Today" || this.getDateFormat(message.get('createdAt')) === "Yesterday") ? 
+                                moment(message.get('createdAt')).format("HH:mm") : 
+                                moment(message.get('createdAt')).format('MM.DD.YY, HH:mm')} 
+                        />
+                    )}       
+                </div>    
+            )
+        );  
     }
 }
 

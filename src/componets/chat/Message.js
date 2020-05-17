@@ -28,7 +28,13 @@ class Message extends React.Component {
             <div className={`my-3 d-flex ${userMatch ? "justify-content-end" : "justify-content-start"}`}>  
                 <div style={styles} className="card w-75 border">
                     <div className="card-body">
-                        {message.get('fileId') ? <File fileId={message.get('fileId')} /> : ""}
+                        {message.get('filesId') ? 
+                        <div>
+                            {message.get('filesId').map( (fileId) => 
+                                <File key={fileId} fileId={fileId} />
+                            )}
+                        </div> 
+                        : ""}
                         <p className="card-text">{message.get('content')}</p>
                         <p className={`card-text ${userMatch ? "text-right" : "text-left"}`}>
                             <small className="text-muted">{date}</small>
