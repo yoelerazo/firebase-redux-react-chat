@@ -2,6 +2,7 @@ import React from 'react';
 import  { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faCheck } from '@fortawesome/free-solid-svg-icons';
 import './../../styles/components/message.scss';
+import ReactHtmlParser from 'react-html-parser';
 import File from './File';
 
 class Message extends React.Component {
@@ -20,7 +21,7 @@ class Message extends React.Component {
                             )}
                         </div> 
                         : ""}
-                        <p className={`card-text mb-2 ${userMatch ? "text-right" : ""}`}>{message.get('content')}</p>
+                        <p className={`card-text mb-2 ${userMatch ? "text-right" : ""}`}>{ReactHtmlParser(message.get('content'))}</p>
                         <p className={`card-text ${userMatch ? "text-right" : "text-left"}`}>
                             <small className="text-muted">{date}</small>
                             {userMatch && message.get('status') === 2 

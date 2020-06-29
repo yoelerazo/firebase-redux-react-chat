@@ -31,7 +31,7 @@ export const getChatsByCurrentUser = () => {
             });
             
             dispatch({ type: 'SET_CHATS', chats: chats });
-            /* chats.forEach( chat => dispatch(newMessageNotification(chat)) ); */
+            chats.forEach( chat => dispatch(newMessageNotification(chat)) );
         });
     }
 }
@@ -159,7 +159,7 @@ export const loadingMessages = (bool) => {
     return { type: 'LOADING_MESSAGES', loading: bool }
 }
 
-/* export const newMessageNotification = (chatParam) => {
+export const newMessageNotification = (chatParam) => {
     return (dispatch, getState) => {
         const chats = getState().chats.getIn(['list']);
         const chatIndex = chats.findIndex( chat => chat.get('id') === chatParam.id );
@@ -174,18 +174,12 @@ export const loadingMessages = (bool) => {
                         messages.push({id: change.doc.id, ...change.doc.data()});
                     }
                 }
-                if (change.type === "modified") {
-                    console.log("Modified Notificationmessage: ", change.doc.data());
-                }
-                if (change.type === "removed") {
-                    console.log("Removed Notificationmessage: ", change.doc.data());
-                }
             });
             
             dispatch({ type: 'PENDING_MESSAGES_BY_CHAT', chatIndex: chatIndex, pendingMessages: messages.length});
         });
     }
-} */
+}
 
 export const updateStatusMessage = (messageParam) => {
     return (dispatch, getState) => {

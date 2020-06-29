@@ -53,7 +53,7 @@ class Footer extends React.Component {
       type: 1,
       status: 1,
       from: this.props.currentUser.id,
-      content: this.state.message,
+      content: this.state.message.replace(/\n/gi, "<br>"),
       createdAt: await this.getTimezoneTimestamp(),
       filesId: filesId.length === 0 ? null : filesId,
     };
