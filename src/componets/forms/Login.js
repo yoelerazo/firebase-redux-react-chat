@@ -1,6 +1,6 @@
 import React from 'react';
 import { withRouter} from 'react-router-dom';
-import { isAuthenticated } from '../redux/actions/session';
+import { isAuthenticated } from './../../redux/actions/session';
 import { connect } from 'react-redux';
 
 class Loging extends React.Component {

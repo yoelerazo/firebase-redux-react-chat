@@ -11,7 +11,7 @@ class Header extends React.Component {
         return (
             <div className="card-header rounded-0 bg-transparent d-flex justify-content-between align-items-center">
                 <div className="d-flex align-items-center">
-                    <div className="avatar--48 overflow-hidden rounded-circle mr-2">
+                    <div className="square-6 overflow-hidden rounded-circle mr-2">
                         <img src={userImage} className="responsive-img"></img>
                     </div>
                     <span className="text-secondary">{userPartner}</span>

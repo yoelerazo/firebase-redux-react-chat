@@ -50,8 +50,8 @@ class UserList extends React.Component {
             <div className={isToggleOn ? '' : 'd-none'}>
                 <ul className="list-group list-group-flush shadow-sm">
                     {usersFiltered.map( (user) => 
-                        <li id={user.get('id')} onClick={this.handleClickUserItem} key={user.get('id')} className="list-group-item" >
-                            <div className="avatar--48 overflow-hidden rounded-circle mr-2 d-inline-block align-middle">
+                        <li id={user.get('id')} onClick={this.handleClickUserItem} key={user.get('id')} className="list-group-item list-group-item-action" >
+                            <div className="square-6 overflow-hidden rounded-circle mr-2 d-inline-block align-middle">
                                 <img src={userImage} className="responsive-img" />
                             </div>
                             {user.get('userName')}

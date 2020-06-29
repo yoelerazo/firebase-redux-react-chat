@@ -15,6 +15,7 @@ class Footer extends React.Component {
     this.handleChangeMessageInput = this.handleChangeMessageInput.bind(this);
     this.sendMessage = this.sendMessage.bind(this);
     this.uploadFiles = this.uploadFiles.bind(this);
+    this.handleKeyUp = this.handleKeyUp.bind(this);
 
     this.messageFileInput = React.createRef();
   }
@@ -78,6 +79,13 @@ class Footer extends React.Component {
       return data;
     });
     this.addMessage(l);
+  }
+
+  handleKeyUp(e) {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault();
+      this.sendMessage(e)
+    }
   }
 
   processFile = (files) => {
@@ -185,8 +193,9 @@ class Footer extends React.Component {
           <div className="input-group">
             <textarea
               onChange={this.handleChangeMessageInput}
+              onKeyUp={this.handleKeyUp}
               value={this.state.message}
-              className="form-control"
+              className="form-control scroll"
               style={{
                 backgroundColor: "rgba(0, 0, 0, 0.03)",
                 borderColor: "rgba(0, 0, 0, 0.03)",
@@ -215,8 +224,7 @@ class Footer extends React.Component {
               style={{ marginLeft: "0" }}
             >
               <button
-                className="btn rounded-circle bg-primary"
-                style={{ width: "48px", height: "48px" }}
+                className="btn square-6 rounded-circle bg-primary"
               >
                 <FontAwesomeIcon icon={faPaperPlane} className="text-white" />
               </button>

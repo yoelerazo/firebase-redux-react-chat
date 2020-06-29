@@ -1,32 +1,19 @@
 import React from 'react';
 import moment from 'moment';
+import {formatByDay} from '../../helpers/date_helper';
 import Message from './Message';
 
 class MessageList extends React.Component {
-    getDateFormat(targetdate) {
-        let now = moment(moment().format('MM.DD.YY'));
-        let date = moment(moment(targetdate).format('MM.DD.YY'));
-        let diffDays = now.diff(date, 'days');
-        
-        if(diffDays === 0) {
-            return "Today";
-        } else if(diffDays === 1) {
-            return "Yesterday";
-        } else {
-            return moment(date).format('MM.DD.YY');
-        }
-    }
-
     render() {
         const {messages, currentUser} = this.props;
 
         const newList = {}
 
         messages.forEach( message => {
-            let dateTimestamp = moment(moment(message.get('createdAt').seconds).format('MM.DD.YY')).valueOf();
-
+            let dateTimestamp = moment(moment(message.get('createdAt'),"x").format('MM.DD.YYYY'),'MM.DD.YYYY').valueOf();
+            
             if(!newList[dateTimestamp]) {
-                newList[dateTimestamp] = {label: this.getDateFormat(dateTimestamp), messages: [message]};  
+                newList[dateTimestamp] = {label: formatByDay(dateTimestamp), messages: [message]};  
             }else {
                 newList[dateTimestamp].messages.push(message);
             }
@@ -39,9 +26,9 @@ class MessageList extends React.Component {
                     {value.messages.map( (message) => 
                        <Message key={message.get('id')}
                             currentUser={currentUser} message={message} 
-                            date={(this.getDateFormat(message.get('createdAt')) === "Today" || this.getDateFormat(message.get('createdAt')) === "Yesterday") ? 
+                            date={ (formatByDay(message.get('createdAt')) === "Today" || formatByDay(message.get('createdAt')) === "Yesterday") ? 
                                 moment(message.get('createdAt')).format("HH:mm") : 
-                                moment(message.get('createdAt')).format('MM.DD.YY, HH:mm')} 
+                                moment(message.get('createdAt')).format('DD.MM.YYYY, HH:mm')} 
                         />
                     )}       
                 </div>    

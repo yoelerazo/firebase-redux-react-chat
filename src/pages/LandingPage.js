@@ -1,6 +1,6 @@
 import React from 'react';
-import Signup from './Signup';
-import Login from './Login';
+import Signup from '../componets/forms/Signup';
+import Login from '../componets/forms/Login';
 import { Link } from 'react-router-dom';
 
 class LandingPage extends React.Component {

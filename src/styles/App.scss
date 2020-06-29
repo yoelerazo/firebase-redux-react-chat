@@ -1,0 +1,90 @@
+$levels: 6;
+
+@mixin square($i, $breakpoint) {
+    .square-#{$i}#{$breakpoint} {
+        width: (0.5rem * $i);
+        height: (0.5rem * $i);
+    }
+}
+
+@for $i from 1 through $levels {
+    @include square($i, "");
+}
+        
+.icon-rotate {
+    transition: all 0.5s ease-in-out;
+}
+
+.icon-rotate--left {
+    transform: rotate(-45deg);
+}
+
+.icon-rotate--right {
+    transform: rotate(0deg);
+}
+
+.avatar--48 {
+    width: 48px;
+    height: 48px;
+}
+
+.avatar--32 {
+    width: 32px;
+    height: 32px;
+}
+
+.responsive-img {
+    width: 100%;
+    height: auto;
+}
+
+.scroll {
+    scrollbar-width: thin;
+    scrollbar-color:  #cfcfcf #f0f0f0;
+
+    &::-webkit-scrollbar {
+        width: 6px;
+    }
+       
+    &::-webkit-scrollbar-track {
+        background-color: #f0f0f0;
+    }
+    
+    &::-webkit-scrollbar-thumb {
+        background-color: #cfcfcf;
+    }
+    
+}
+
+
+// Small devices (landscape phones, 576px and up)
+@media (min-width: 576px) { 
+    @for $i from 1 through $levels {
+        @include square($i, "--sm");
+    }
+}
+
+// Medium devices (tablets, 768px and up)
+@media (min-width: 768px) {
+    @for $i from 1 through $levels {
+        @include square($i, "--md");
+    }
+}
+
+// Large devices (desktops, 992px and up)
+@media (min-width: 992px) {
+    @for $i from 1 through $levels {
+        @include square($i, "--lg");
+    }
+
+    .flexbasis-400--lg  {
+        flex-basis: 400px;
+    }
+}
+
+// Extra large devices (large desktops, 1200px and up)
+@media (min-width: 1200px) {
+    @for $i from 1 through $levels {
+        @include square($i, "--xl");
+    }
+}

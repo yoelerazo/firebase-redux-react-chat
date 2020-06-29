@@ -29,7 +29,7 @@ class ChatList extends React.Component {
                 <ul className="list-group list-group-flush shadow-sm">
                     {chatsFiltered.map( (chat) => 
                         <li id={chat.get('id')} onClick={this.selectChat} key={chat.get('id')} className="list-group-item" >
-                            <div className="avatar--48 overflow-hidden rounded-circle mr-2 d-inline-block align-middle">
+                            <div className="square-6 overflow-hidden rounded-circle mr-2 d-inline-block align-middle">
                                 <img src={userImage} className="responsive-img" />
                             </div>
                             {chat.get('partner')}

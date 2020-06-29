@@ -1,5 +1,7 @@
 import React from 'react';
 import { connect } from 'react-redux';
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faFileAlt } from "@fortawesome/free-regular-svg-icons";
 
 class File extends React.Component {
     constructor(props) {
@@ -56,7 +58,10 @@ class File extends React.Component {
                 {this.state.loadingFile 
                 ? <span>Loading...</span>
                 : <div>
-                    <a download={this.state.fileName} href={this.state.fileData}>{this.state.fileName}</a>
+                    <a download={this.state.fileName} href={this.state.fileData}>
+                        <FontAwesomeIcon icon={faFileAlt} className="text-secondary mr-2" size="lg"/>
+                        {this.state.fileName}
+                    </a>
                 </div>
                 
                 

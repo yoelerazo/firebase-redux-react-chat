@@ -18,7 +18,7 @@ class ChatRoom extends React.Component {
                         <ChatNavbar />
                         {currentChatId 
                         ? <Window /> 
-                        : <div className="p-3 bg-white" style={{flexGrow:"1"}}> Select a chat </div>
+                        : <div className="p-3 bg-white d-none d-lg-flex flex-lg-grow-1"> Select a chat </div>
                         }
                    </Main>
                 </>
