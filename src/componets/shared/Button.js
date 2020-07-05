@@ -1,9 +1,6 @@
 import React from 'react';
 
 class Button extends React.Component {
-  constructor(props) {
-    super(props);
-  }
 
   render() {
     const {type, className, style, handleClick, children} = this.props;

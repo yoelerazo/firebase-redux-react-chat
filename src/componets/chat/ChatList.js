@@ -4,16 +4,16 @@ import { getChatsByCurrentUser, setCurrentChat, getMessagesByChat } from '../../
 import userImage from "../../user_image.jpg";
 
 class ChatList extends React.Component {
-    constructor(props) {
-        super(props);
-    }
 
     selectChat = (e) => {
-        let id_target = e.target.id;
-
-        this.unsubscribe && this.unsubscribe();
-        this.props.setCurrentChat(id_target);
-        this.unsubscribe = this.props.getMessagesByChat();
+        const {currentChatId} = this.props;
+        const id_target = e.target.id;
+       
+        if (id_target !== currentChatId) {
+            this.unsubscribe && this.unsubscribe();
+            this.props.setCurrentChat(id_target);
+            this.unsubscribe = this.props.getMessagesByChat();
+        }
     }
 
     componentDidMount() {
@@ -26,7 +26,7 @@ class ChatList extends React.Component {
 
     render() {
         const {chats, isToggleOn, filterText, currentChatId} = this.props;
-        const chatsFiltered = chats.filter( chat => {
+        const chatsFiltered = chats.filter(chat => {
             return chat.get('partner').toLowerCase().indexOf(filterText.toLowerCase()) !== -1;
         });
 
@@ -36,7 +36,7 @@ class ChatList extends React.Component {
                     {chatsFiltered.map( (chat) => 
                         <li id={chat.get('id')} onClick={this.selectChat} key={chat.get('id')} className="list-group-item" >
                             <div className="square-6 overflow-hidden rounded-circle mr-2 d-inline-block align-middle">
-                                <img src={userImage} className="responsive-img" />
+                                <img src={userImage} className="responsive-img" alt="avatar" />
                             </div>
                             {chat.get('partner')}
                             {currentChatId !== chat.get('id') && chat.get('pending') !== 0 
@@ -50,7 +50,8 @@ class ChatList extends React.Component {
 }
 
 const mapStateToProps = (state) => ({
-    chats: state.chats.getIn(['list'])
+    chats: state.chats.getIn(['list']),
+    currentChatId: state.chats.getIn(['currentChatId'])
 })
 
 const mapDispatchToProps = dispatch => ({
@@ -59,4 +60,4 @@ const mapDispatchToProps = dispatch => ({
     getMessagesByChat: () => dispatch(getMessagesByChat())
 })
   
-export default connect(mapStateToProps, mapDispatchToProps )(ChatList)
+export default connect(mapStateToProps, mapDispatchToProps)(ChatList)

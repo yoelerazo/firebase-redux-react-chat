@@ -43,6 +43,8 @@ export const setCurrentChat = (id) => {
 
 export const getMessagesByChat = () => {
 
+    console.log('getMessagesByChat');
+    
     return (dispatch, getState) => {
         const currentChatId = getState().chats.getIn(['currentChatId']);
         const chats = getState().chats.getIn(['list']);
@@ -51,7 +53,7 @@ export const getMessagesByChat = () => {
         const unsubscribeListener = getState().chats.getIn(['unsubscribeListener']);
 
 
-        if(unsubscribeListener ==! null){
+        if(unsubscribeListener !== null){
             unsubscribeListener();
         }
 
@@ -62,58 +64,56 @@ export const getMessagesByChat = () => {
                 }
             })
         }
-
-        //if(!chat.get('messages').size){
             
-            let unsubscribe = window.db.collection("chats").doc(currentChatId).collection("messages")
-            .orderBy("createdAt", "desc").limit(8).onSnapshot(querySnapshot => {
-                let messages = [];
-                let message = null;
-               
-                if(!getState().chats.getIn(['list', chatIndex, 'messages']).size){
-                    let lastMessage = querySnapshot.docs[querySnapshot.docs.length-1];
-                    dispatch({ type: 'SET_LAST_MESSAGE_BY_CHAT', chatIndex: chatIndex, lastMessage: lastMessage})
-                }
-                let changeType = "";
-                querySnapshot.docChanges().forEach(function(change) {
-                   
-                    if (change.type === "added") {
-                        changeType = "added";
-                        console.log("Added:", change.doc.data())
-                        messages.push({id: change.doc.id, ...change.doc.data()}); 
-                    }
-                    if (change.type === "modified") {
-                        changeType = "modified";
-                        message = {id: change.doc.id, ...change.doc.data()} 
-                        console.log("modified Message", change.doc.data());
-                    }
-                    if (change.type === "removed") {
-                        changeType = "removed"
-                        console.log("removed Message", change.doc.data());
-                    }
-
-                    /* var source = querySnapshot.metadata.fromCache ? "local cache" : "server";
-                    console.log("Data came from " + source); */
-                });
+        const unsubscribe = window.db.collection("chats").doc(currentChatId).collection("messages")
+        .orderBy("createdAt", "desc").limit(8).onSnapshot(querySnapshot => {
+            let messages = [];
+            let message = null;
+            
+            console.log('getMessagesByChat escucha');
+            if(!getState().chats.getIn(['list', chatIndex, 'messages']).size){
+                let lastMessage = querySnapshot.docs[querySnapshot.docs.length-1];
+                dispatch({ type: 'SET_LAST_MESSAGE_BY_CHAT', chatIndex: chatIndex, lastMessage: lastMessage})
+            }
+            let changeType = "";
+            querySnapshot.docChanges().forEach(function(change) {
                 
-                if(changeType === "added") {
-                    dispatch({ type: 'UPDATE_MESSAGES_BY_CHAT', chatIndex: chatIndex, messages: messages.reverse()})
-                    
-                    if(getState().chats.getIn(['currentChatId']) === currentChatId ){
-                        getState().chats.getIn(['list', chatIndex, 'messages']).forEach( message => {
-                            if(message.get('status') === 1 && getState().session.get('currentUser').id !== message.get('from')){
-                                dispatch(updateStatusMessage(message));
-                            }
-                        })
-                    }
-                }else if(changeType === "modified") {
-                    let messageIndex = getState().chats.getIn(['list', chatIndex, 'messages']).findIndex( msg => msg.get('id') === message.id );
-                    dispatch({ type: 'UPDATE_MESSAGE', chatIndex: chatIndex, messageIndex: messageIndex, message: message});
+                if (change.type === "added") {
+                    changeType = "added";
+                    console.log("Added:", change.doc.data())
+                    messages.push({id: change.doc.id, ...change.doc.data()}); 
                 }
-            });
+                if (change.type === "modified") {
+                    changeType = "modified";
+                    message = {id: change.doc.id, ...change.doc.data()} 
+                    console.log("modified Message", change.doc.data());
+                }
+                if (change.type === "removed") {
+                    changeType = "removed"
+                    console.log("removed Message", change.doc.data());
+                }
 
-            return unsubscribe;
-        //}
+                /* var source = querySnapshot.metadata.fromCache ? "local cache" : "server";
+                console.log("Data came from " + source); */
+            });
+            
+            if(changeType === "added") {
+                dispatch({ type: 'UPDATE_MESSAGES_BY_CHAT', chatIndex: chatIndex, messages: messages.reverse()})
+                
+                if(getState().chats.getIn(['currentChatId']) === currentChatId ){
+                    getState().chats.getIn(['list', chatIndex, 'messages']).forEach( message => {
+                        if(message.get('status') === 1 && getState().session.get('currentUser').id !== message.get('from')){
+                            dispatch(updateStatusMessage(message));
+                        }
+                    })
+                }
+            }else if(changeType === "modified") {
+                let messageIndex = getState().chats.getIn(['list', chatIndex, 'messages']).findIndex( msg => msg.get('id') === message.id );
+                dispatch({ type: 'UPDATE_MESSAGE', chatIndex: chatIndex, messageIndex: messageIndex, message: message});
+            }
+        });
+
+        return unsubscribe;
     }
 }
 
@@ -202,10 +202,10 @@ export const newMessageNotification = (chatParam) => {
 export const updateStatusMessage = (messageParam) => {
     return (dispatch, getState) => {
         const currentChatId = getState().chats.getIn(['currentChatId']);
-        const chats = getState().chats.getIn(['list']);
-        const chatIndex = chats.findIndex( chat => chat.get('id') === currentChatId );
-        const chat = chats.find(chat => chat.get('id') === currentChatId );
-        const messageIndex = chat.getIn(['messages']).findIndex( message => message.get('id') === messageParam.get('id') );
+        // const chats = getState().chats.getIn(['list']);
+        // const chatIndex = chats.findIndex( chat => chat.get('id') === currentChatId );
+        // const chat = chats.find(chat => chat.get('id') === currentChatId );
+        // const messageIndex = chat.getIn(['messages']).findIndex( message => message.get('id') === messageParam.get('id') );
         
         window.db.collection("chats").doc(currentChatId).collection("messages").doc(messageParam.get('id'))
         .update({
@@ -221,6 +221,3 @@ export const updateStatusMessage = (messageParam) => {
         
     }
 }
-
-
-
