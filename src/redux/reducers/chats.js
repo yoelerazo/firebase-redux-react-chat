@@ -14,8 +14,10 @@ export default (state = initialState, action) => {
             return state.setIn(['currentChatId'], action.currentChatId)
         case "UPDATE_MESSAGES_BY_CHAT":
             return state.updateIn(['list', action.chatIndex, 'messages'], list => {
-                console.log(list.toJS(), action.messages);
+                // TODO: remover sort para optimizar el codigo.
+                // hacerlo cuando se ser deje de utilizar firebase
                 return list.concat(fromJS(action.messages))
+                            .sort((a, b) => a.toJS().createdAt - b.toJS().createdAt)
             })
         case "UPDATE_MESSAGES_PAGINATE_BY_CHAT":
             return state.updateIn(['list', action.chatIndex, 'messages'], list => fromJS(action.messages).concat(list))

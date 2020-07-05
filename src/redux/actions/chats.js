@@ -48,26 +48,17 @@ export const getMessagesByChat = () => {
         const currentChatId = getState().chats.getIn(['currentChatId']);
         const chats = getState().chats.getIn(['list']);
         const chatIndex = chats.findIndex( chat => chat.get('id') === currentChatId );
-
-        /* if(chat.get('messages').size){
-            chat.get('messages').forEach( message => {
-                if(message.get('status') === 1 && getState().session.get('currentUser').id !== message.get('from')){
-                    dispatch(updateStatusMessage(message));
-                }
-            })
-        } */
             
         const unsubscribe = window.db.collection("chats").doc(currentChatId).collection("messages")
         .orderBy("createdAt", "desc").limit(8).onSnapshot(querySnapshot => {
             let messages = [];
             let message = null;
             
-            console.log('getMessagesByChat escucha');
             if(!getState().chats.getIn(['list', chatIndex, 'messages']).size){
                 let lastMessage = querySnapshot.docs[querySnapshot.docs.length-1];
                 dispatch({ type: 'SET_LAST_MESSAGE_BY_CHAT', chatIndex: chatIndex, lastMessage: lastMessage})
             }
-            let changeType = "";
+            let changeType = "";      
             querySnapshot.docChanges().forEach(function(change) {
                 
                 if (change.type === "added") {
@@ -90,11 +81,9 @@ export const getMessagesByChat = () => {
             });
             
             if(changeType === "added") {
-                dispatch({ type: 'UPDATE_MESSAGES_BY_CHAT', chatIndex: chatIndex, messages: messages.reverse()})
+                dispatch({ type: 'UPDATE_MESSAGES_BY_CHAT', chatIndex: chatIndex, messages})
                 
-                getState().chats.getIn(['list', chatIndex, 'messages']).forEach(message => {
-                    console.log(getState().session.get('currentUser').id, message.get('from'));
-                    
+                getState().chats.getIn(['list', chatIndex, 'messages']).forEach(message => {                    
                     if(message.get('status') === 1 && getState().session.get('currentUser').id !== message.get('from')){
                         dispatch(updateStatusMessage(message));
                     }
