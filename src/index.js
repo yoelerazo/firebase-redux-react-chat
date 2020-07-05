@@ -3,7 +3,8 @@ import ReactDOM from 'react-dom';
 import './index.css';
 import App from './App';
 import * as serviceWorker from './serviceWorker';
-import firebase from './Firebase'
+import firebase from './Firebase';
+console.log(process.env)
 
 window.firebase = firebase;
 window.db = firebase.firestore();

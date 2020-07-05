@@ -9,14 +9,20 @@ class ChatList extends React.Component {
     }
 
     selectChat = (e) => {
-        let id_target = e.target.id
+        let id_target = e.target.id;
+
+        this.unsubscribe && this.unsubscribe();
         this.props.setCurrentChat(id_target);
-        this.props.getMessagesByChat();
+        this.unsubscribe = this.props.getMessagesByChat();
     }
 
     componentDidMount() {
         this.props.getChatsByCurrentUser();
     }
+
+    componentWillUnmount = () => {
+        this.unsubscribe && this.unsubscribe();
+    };
 
     render() {
         const {chats, isToggleOn, filterText, currentChatId} = this.props;
@@ -44,8 +50,7 @@ class ChatList extends React.Component {
 }
 
 const mapStateToProps = (state) => ({
-    chats: state.chats.getIn(['list']),
-    currentChatId: state.chats.getIn(['currentChatId'])
+    chats: state.chats.getIn(['list'])
 })
 
 const mapDispatchToProps = dispatch => ({

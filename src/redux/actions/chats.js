@@ -33,6 +33,7 @@ export const getChatsByCurrentUser = () => {
             dispatch({ type: 'SET_CHATS', chats: chats });
             chats.forEach( chat => dispatch(newMessageNotification(chat)) );
         });
+        
     }
 }
 
@@ -47,6 +48,12 @@ export const getMessagesByChat = () => {
         const chats = getState().chats.getIn(['list']);
         const chatIndex = chats.findIndex( chat => chat.get('id') === currentChatId );
         const chat = chats.find(chat => chat.get('id') === currentChatId );
+        const unsubscribeListener = getState().chats.getIn(['unsubscribeListener']);
+
+
+        if(unsubscribeListener ==! null){
+            unsubscribeListener();
+        }
 
         if(chat.get('messages').size){
             chat.get('messages').forEach( message => {
@@ -56,9 +63,9 @@ export const getMessagesByChat = () => {
             })
         }
 
-        if(!chat.get('messages').size){
+        //if(!chat.get('messages').size){
             
-            window.db.collection("chats").doc(currentChatId).collection("messages")
+            let unsubscribe = window.db.collection("chats").doc(currentChatId).collection("messages")
             .orderBy("createdAt", "desc").limit(8).onSnapshot(querySnapshot => {
                 let messages = [];
                 let message = null;
@@ -77,10 +84,12 @@ export const getMessagesByChat = () => {
                     }
                     if (change.type === "modified") {
                         changeType = "modified";
-                        message = {id: change.doc.id, ...change.doc.data()}  
+                        message = {id: change.doc.id, ...change.doc.data()} 
+                        console.log("modified Message", change.doc.data());
                     }
                     if (change.type === "removed") {
                         changeType = "removed"
+                        console.log("removed Message", change.doc.data());
                     }
 
                     /* var source = querySnapshot.metadata.fromCache ? "local cache" : "server";
@@ -89,7 +98,7 @@ export const getMessagesByChat = () => {
                 
                 if(changeType === "added") {
                     dispatch({ type: 'UPDATE_MESSAGES_BY_CHAT', chatIndex: chatIndex, messages: messages.reverse()})
-
+                    
                     if(getState().chats.getIn(['currentChatId']) === currentChatId ){
                         getState().chats.getIn(['list', chatIndex, 'messages']).forEach( message => {
                             if(message.get('status') === 1 && getState().session.get('currentUser').id !== message.get('from')){
@@ -102,7 +111,9 @@ export const getMessagesByChat = () => {
                     dispatch({ type: 'UPDATE_MESSAGE', chatIndex: chatIndex, messageIndex: messageIndex, message: message});
                 }
             });
-        }
+
+            return unsubscribe;
+        //}
     }
 }
 
@@ -172,7 +183,14 @@ export const newMessageNotification = (chatParam) => {
                 if (change.type === "added") {
                     if(getState().session.get('currentUser').id !== change.doc.data().from) {
                         messages.push({id: change.doc.id, ...change.doc.data()});
+                        console.log("added Notification ", change.doc.data());
                     }
+                }
+                if (change.type === "modified") {
+                    console.log("Modified Notification ", change.doc.data());
+                }
+                if (change.type === "removed") {
+                    console.log("removed Notification ", change.doc.data());
                 }
             });
             

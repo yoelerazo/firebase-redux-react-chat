@@ -15,6 +15,7 @@ class Header extends React.Component {
     logOutUser() {
         window.firebase.auth().signOut().then(() => {
             console.log("User logout!");
+            
             this.props.logoutUser();
             this.props.history.push('/');
         });
