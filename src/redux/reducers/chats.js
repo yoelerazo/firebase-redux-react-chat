@@ -3,7 +3,6 @@ import {fromJS} from 'immutable';
 const initialState = fromJS({
     list: [],
     currentChatId: null,
-    unsubscribeListener: null,
     loadingMessages: false
 })
 

@@ -43,27 +43,19 @@ export const setCurrentChat = (id) => {
 
 export const getMessagesByChat = () => {
 
-    console.log('getMessagesByChat');
     
     return (dispatch, getState) => {
         const currentChatId = getState().chats.getIn(['currentChatId']);
         const chats = getState().chats.getIn(['list']);
         const chatIndex = chats.findIndex( chat => chat.get('id') === currentChatId );
-        const chat = chats.find(chat => chat.get('id') === currentChatId );
-        const unsubscribeListener = getState().chats.getIn(['unsubscribeListener']);
 
-
-        if(unsubscribeListener !== null){
-            unsubscribeListener();
-        }
-
-        if(chat.get('messages').size){
+        /* if(chat.get('messages').size){
             chat.get('messages').forEach( message => {
                 if(message.get('status') === 1 && getState().session.get('currentUser').id !== message.get('from')){
                     dispatch(updateStatusMessage(message));
                 }
             })
-        }
+        } */
             
         const unsubscribe = window.db.collection("chats").doc(currentChatId).collection("messages")
         .orderBy("createdAt", "desc").limit(8).onSnapshot(querySnapshot => {
@@ -100,13 +92,13 @@ export const getMessagesByChat = () => {
             if(changeType === "added") {
                 dispatch({ type: 'UPDATE_MESSAGES_BY_CHAT', chatIndex: chatIndex, messages: messages.reverse()})
                 
-                if(getState().chats.getIn(['currentChatId']) === currentChatId ){
-                    getState().chats.getIn(['list', chatIndex, 'messages']).forEach( message => {
-                        if(message.get('status') === 1 && getState().session.get('currentUser').id !== message.get('from')){
-                            dispatch(updateStatusMessage(message));
-                        }
-                    })
-                }
+                getState().chats.getIn(['list', chatIndex, 'messages']).forEach(message => {
+                    console.log(getState().session.get('currentUser').id, message.get('from'));
+                    
+                    if(message.get('status') === 1 && getState().session.get('currentUser').id !== message.get('from')){
+                        dispatch(updateStatusMessage(message));
+                    }
+                })
             }else if(changeType === "modified") {
                 let messageIndex = getState().chats.getIn(['list', chatIndex, 'messages']).findIndex( msg => msg.get('id') === message.id );
                 dispatch({ type: 'UPDATE_MESSAGE', chatIndex: chatIndex, messageIndex: messageIndex, message: message});
