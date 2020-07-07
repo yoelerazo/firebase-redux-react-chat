@@ -8,7 +8,7 @@ class MessageList extends React.Component {
         const {messages, currentUser} = this.props;
 
         const newList = {}
-
+        
         messages.forEach( message => {
             let dateTimestamp = moment(moment(message.get('createdAt'),"x").format('MM.DD.YYYY'),'MM.DD.YYYY').valueOf();
             

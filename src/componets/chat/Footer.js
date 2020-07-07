@@ -15,8 +15,9 @@ class Footer extends React.Component {
     this.handleChangeMessageInput = this.handleChangeMessageInput.bind(this);
     this.sendMessage = this.sendMessage.bind(this);
     this.uploadFiles = this.uploadFiles.bind(this);
-    this.handleKeyUp = this.handleKeyUp.bind(this);
+    this.handleKeyDown = this.handleKeyDown.bind(this);
 
+    this.messageTextarea = React.createRef();
     this.messageFileInput = React.createRef();
   }
 
@@ -58,7 +59,7 @@ class Footer extends React.Component {
       filesId: filesId.length === 0 ? null : filesId,
     };
 
-    window.db
+    await window.db
       .collection("chats")
       .doc(this.props.currentChatId)
       .collection("messages")
@@ -75,16 +76,23 @@ class Footer extends React.Component {
 
   async sendMessage(e) {
     e.preventDefault();
-    let l = await this.uploadFiles().then(data => {
-      return data;
-    });
-    this.addMessage(l);
+    
+    this.messageTextarea.current.setAttribute("disabled", true);
+
+    try {
+      const filesId = await this.uploadFiles().then(data => data);
+      await this.addMessage(filesId);
+    } catch (error) {
+      console.log("error by sending msg", error);      
+    }
+    
+    this.messageTextarea.current.removeAttribute("disabled");
+    this.messageTextarea.current.focus();
   }
 
-  handleKeyUp(e) {
+  handleKeyDown(e) {
     if (e.key === 'Enter' && !e.shiftKey) {
-      e.preventDefault();
-      this.sendMessage(e)
+      this.sendMessage(e);
     }
   }
 
@@ -193,8 +201,9 @@ class Footer extends React.Component {
           <div className="input-group">
             <textarea
               onChange={this.handleChangeMessageInput}
-              onKeyUp={this.handleKeyUp}
+              onKeyDown={this.handleKeyDown}
               value={this.state.message}
+              ref={this.messageTextarea}
               className="form-control scroll"
               style={{
                 backgroundColor: "rgba(0, 0, 0, 0.03)",

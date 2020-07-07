@@ -10,9 +10,7 @@ window.firebase = firebase;
 window.db = firebase.firestore();
 
 ReactDOM.render(
-  <React.StrictMode>
-    <App />
-  </React.StrictMode>,
+  <App />,
   document.getElementById('root')
 );
 

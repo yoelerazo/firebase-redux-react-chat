@@ -49,7 +49,6 @@ export const getMessagesByChat = () => {
         const chats = getState().chats.getIn(['list']);
         const chatIndex = chats.findIndex( chat => chat.get('id') === currentChatId );
         const oldMessages = getState().chats.getIn(['list', chatIndex, 'messages']);
-        console.log(oldMessages);
         
         const unsubscribe = window.db.collection("chats").doc(currentChatId).collection("messages")
         .orderBy("createdAt", "desc").limit(8).onSnapshot(querySnapshot => {
@@ -85,7 +84,7 @@ export const getMessagesByChat = () => {
             
             if(changeType === "added") {
                 dispatch({ type: 'UPDATE_MESSAGES_BY_CHAT', chatIndex: chatIndex, messages})
-                
+                console.log('.....', getState().chats.getIn(['list', chatIndex, 'messages']).filter(e => e.get('status') === 1).toJS());
                 getState().chats.getIn(['list', chatIndex, 'messages']).forEach(message => {                    
                     if(message.get('status') === 1 && getState().session.get('currentUser').id !== message.get('from')){
                         dispatch(updateStatusMessage(message));
@@ -182,7 +181,7 @@ export const newMessageNotification = (chatParam) => {
                 }
             });
             
-            dispatch({ type: 'PENDING_MESSAGES_BY_CHAT', chatIndex: chatIndex, pendingMessages: messages.length});
+            dispatch({ type: 'UPDATE_PENDING_MESSAGES_BY_CHAT', chatIndex: chatIndex, pendingMessages: messages.length});
         });
     }
 }
@@ -190,22 +189,23 @@ export const newMessageNotification = (chatParam) => {
 export const updateStatusMessage = (messageParam) => {
     return (dispatch, getState) => {
         const currentChatId = getState().chats.getIn(['currentChatId']);
-        // const chats = getState().chats.getIn(['list']);
-        // const chatIndex = chats.findIndex( chat => chat.get('id') === currentChatId );
+        const chats = getState().chats.getIn(['list']);
+        const chatIndex = chats.findIndex( chat => chat.get('id') === currentChatId );
         // const chat = chats.find(chat => chat.get('id') === currentChatId );
         // const messageIndex = chat.getIn(['messages']).findIndex( message => message.get('id') === messageParam.get('id') );
         
-        window.db.collection("chats").doc(currentChatId).collection("messages").doc(messageParam.get('id'))
-        .update({
-            status: 2
-        })
-        .then(function() {
-            console.log("Document successfully updated!"); 
-            /* dispatch({ type: 'PENDING_MESSAGES_BY_CHAT', chatIndex: chatIndex, pendingMessages: -1}); */
-        })
-        .catch(function(error) {
-            console.error("Error updating document: ", error);
-        });
-        
+        if (messageParam.get('status') < 2) {
+            window.db.collection("chats").doc(currentChatId).collection("messages").doc(messageParam.get('id'))
+            .update({
+                status: 2
+            })
+            .then(() => {
+                console.log("status from message updated!", messageParam.get('id'));
+                dispatch({ type: 'UPDATE_PENDING_MESSAGES_BY_CHAT', chatIndex, pendingMessages: -1});
+            })
+            .catch((error) => {
+                console.error("Error updating message: ", error);
+            });
+        }
     }
 }
