@@ -48,20 +48,23 @@ export const getMessagesByChat = () => {
         const currentChatId = getState().chats.getIn(['currentChatId']);
         const chats = getState().chats.getIn(['list']);
         const chatIndex = chats.findIndex( chat => chat.get('id') === currentChatId );
-            
+        const oldMessages = getState().chats.getIn(['list', chatIndex, 'messages']);
+        console.log(oldMessages);
+        
         const unsubscribe = window.db.collection("chats").doc(currentChatId).collection("messages")
         .orderBy("createdAt", "desc").limit(8).onSnapshot(querySnapshot => {
             let messages = [];
             let message = null;
             
-            if(!getState().chats.getIn(['list', chatIndex, 'messages']).size){
-                let lastMessage = querySnapshot.docs[querySnapshot.docs.length-1];
-                dispatch({ type: 'SET_LAST_MESSAGE_BY_CHAT', chatIndex: chatIndex, lastMessage: lastMessage})
+            if(!oldMessages.size){
+                const lastMessage = querySnapshot.docs[querySnapshot.docs.length-1];
+                dispatch({ type: 'SET_LAST_MESSAGE_BY_CHAT', chatIndex, lastMessage})
             }
+
             let changeType = "";      
             querySnapshot.docChanges().forEach(function(change) {
                 
-                if (change.type === "added") {
+                if (change.type === "added" && !oldMessages.some(msg => msg.get("id") === change.doc.id)) {
                     changeType = "added";
                     console.log("Added:", change.doc.data())
                     messages.push({id: change.doc.id, ...change.doc.data()}); 
@@ -89,8 +92,8 @@ export const getMessagesByChat = () => {
                     }
                 })
             }else if(changeType === "modified") {
-                let messageIndex = getState().chats.getIn(['list', chatIndex, 'messages']).findIndex( msg => msg.get('id') === message.id );
-                dispatch({ type: 'UPDATE_MESSAGE', chatIndex: chatIndex, messageIndex: messageIndex, message: message});
+                const messageIndex = oldMessages.findIndex( msg => msg.get('id') === message.id );
+                dispatch({ type: 'UPDATE_MESSAGE', chatIndex, messageIndex, message});
             }
         });
 
@@ -104,14 +107,18 @@ export const getMessagesPaginateByChat = () => {
         const chats = getState().chats.getIn(['list']);
         const chatIndex = chats.findIndex( chat => chat.get('id') === currentChatId );
         const chat = chats.find(chat => chat.get('id') === currentChatId );
+        console.log('++++', currentChatId, chat);
+        
         const lastMessage = chat.get('lastMessage');
+        console.log(lastMessage);
 
         let nextQuery = true;
         let lastMSG = getState().chats.getIn(['list', chatIndex, 'lastMessage']);
         let previousMSG = getState().chats.getIn(['list', chatIndex, 'previousLastMessage']);
 
         
-        if(previousMSG !== null) {
+        // if(previousMSG !== null) {
+        if(previousMSG) {
             if(previousMSG.id === lastMSG.id) {
                 nextQuery = false;
             }

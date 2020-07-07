@@ -18,7 +18,8 @@ class Main extends React.Component {
     addEventScroll() {
         const ele = this.scrollElement.current;
         ele.addEventListener("scroll", () => {
-            if (ele.scrollTop < 1 && this.props.loadingMessages === false){
+            const hasScroll = ele.scrollHeight > ele.clientHeight;
+            if (hasScroll && ele.scrollTop < 1 && this.props.loadingMessages === false){
                 ele.scrollTop = 1;
                 this.props.getMessagesPaginateByChat();
             }
