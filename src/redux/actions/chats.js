@@ -177,6 +177,9 @@ export const newMessageNotification = (chatParam) => {
                     }
                 }
                 if (change.type === "modified") {
+                    //TODO : 
+                    /* verificar si el status del mesaje fue modificado
+                    y actualizr asi los mensajes pendientes por leer*/
                     console.log("Modified Notification ", change.doc.data());
                 }
                 if (change.type === "removed") {
