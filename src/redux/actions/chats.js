@@ -65,8 +65,9 @@ export const getMessagesByChat = () => {
                 
                 if (change.type === "added" && !oldMessages.some(msg => msg.get("id") === change.doc.id)) {
                     changeType = "added";
-                    console.log("Added:", change.doc.data())
+                    
                     messages.push({id: change.doc.id, ...change.doc.data()}); 
+                    console.log("Added:", change.doc.id,change.doc.data())
                 }
                 if (change.type === "modified") {
                     changeType = "modified";
@@ -84,14 +85,14 @@ export const getMessagesByChat = () => {
             
             if(changeType === "added") {
                 dispatch({ type: 'UPDATE_MESSAGES_BY_CHAT', chatIndex: chatIndex, messages})
-                console.log('.....', getState().chats.getIn(['list', chatIndex, 'messages']).filter(e => e.get('status') === 1).toJS());
+                //console.log('.....', getState().chats.getIn(['list', chatIndex, 'messages']).filter(e => e.get('status') === 1).toJS());
                 getState().chats.getIn(['list', chatIndex, 'messages']).forEach(message => {                    
                     if(message.get('status') === 1 && getState().session.get('currentUser').id !== message.get('from')){
                         dispatch(updateStatusMessage(message));
                     }
                 })
             }else if(changeType === "modified") {
-                const messageIndex = oldMessages.findIndex( msg => msg.get('id') === message.id );
+                const messageIndex = getState().chats.getIn(['list', chatIndex, 'messages']).findIndex( msg => msg.get('id') === message.id );
                 dispatch({ type: 'UPDATE_MESSAGE', chatIndex, messageIndex, message});
             }
         });
