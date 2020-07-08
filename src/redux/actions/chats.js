@@ -142,7 +142,9 @@ export const getMessagesPaginateByChat = () => {
                     dispatch({ type: 'SET_LAST_MESSAGE_BY_CHAT', chatIndex: chatIndex, lastMessage: lastMessage})
 
                     querySnapshot.forEach(function(doc) {
-                        messages.push( {id: doc.id, ...doc.data()});
+                        if(!getState().chats.getIn(['list', chatIndex, 'messages']).some(msg => msg.get("id") === doc.id)){
+                            messages.push( {id: doc.id, ...doc.data()});
+                        }
                     });
                     
                     dispatch({ type: 'UPDATE_MESSAGES_PAGINATE_BY_CHAT', chatIndex: chatIndex, messages: messages.reverse()})
